@@ -1,0 +1,58 @@
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Django migrations
+*/migrations/*
+*/migrations/.*
+
+# Local environment variables
+.env
+*.env
+
+# Django secret key
+*.key
+
+# Local SQLite database
+*.sqlite3
+
+# PyCharm project files
+.idea/
+
+# VS Code settings
+.vscode/
+
+# Coverage reports
+.coverage
+*.cover
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Django media files
+/media/
+
+# Django static files
+/static/
+
+# Log files
+*.log
+
+# Temporary files
+*.bak
+*.swp
+
+# Virtualenvs
+venv/
+env/
+.venv/
+ENV/
+
+# Django Rest Framework (DRF) specific (optional)
+*.pot
+*.pyc
+
+# Other generated files
+*.tgz
