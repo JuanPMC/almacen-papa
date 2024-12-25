@@ -1,47 +1,38 @@
 from rest_framework import serializers
-from bslogic.models import TipoDeProducto, TipoDeAccion, Almacen, Producto, Accion
+from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion
 
-class TipoDeProductoSerializer(serializers.ModelSerializer):
+class ActuacionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TipoDeProducto
-        fields = ['id', 'nombre', 'descripcion']
-
-class TipoDeAccionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoDeAccion
-        fields = ['id', 'nombre', 'descripcion']
+        model = Actuacion
+        fields = '__all__'
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Almacen
-        fields = ['id', 'nombre', 'direccion', 'creado_en']
+        fields = '__all__'
 
-class ProductoSerializer(serializers.ModelSerializer):
-    tipo = serializers.PrimaryKeyRelatedField(queryset=TipoDeProducto.objects.all())
-    almacen = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all())
-    
-    class Meta:
-        model = Producto
-        fields = ['id', 'tipo', 'detalles', 'almacen', 'creado_en']
-    
-    def to_representation(self, instance):
-        # Override to represent the related fields as full dict on GET requests
-        representation = super().to_representation(instance)
-        representation['tipo'] = TipoDeProductoSerializer(instance.tipo).data
-        representation['almacen'] = AlmacenSerializer(instance.almacen).data
-        return representation
 
-class AccionSerializer(serializers.ModelSerializer):
-    tipo = serializers.PrimaryKeyRelatedField(queryset=TipoDeAccion.objects.all())
-    producto_almacen = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
-    
+class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Accion
-        fields = ['id', 'tipo', 'producto_almacen', 'realizado_en']
-    
-    def to_representation(self, instance):
-        # Override to represent the related fields as full dict on GET requests
-        representation = super().to_representation(instance)
-        representation['tipo'] = TipoDeAccionSerializer(instance.tipo).data
-        representation['producto_almacen'] = ProductoSerializer(instance.producto_almacen).data
-        return representation
+        model = Empresa
+        fields = '__all__'
+
+class EstadoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estado
+        fields = '__all__'
+
+class TipoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo
+        fields = '__all__'
+
+class InventarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inventario
+        fields = '__all__'
+
+class ListadoActuacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListadoActuacion
+        fields = '__all__'

@@ -1,41 +1,66 @@
 from django.db import models
 
-class TipoDeProducto(models.Model):
-    nombre = models.CharField(max_length=255, unique=True)
-    descripcion = models.TextField(blank=True)
+class Actuacion(models.Model):
+    actuacion = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.nombre
+        return self.actuacion
 
-class TipoDeAccion(models.Model):
-    nombre = models.CharField(max_length=255, unique=True)
-    descripcion = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.nombre
 
 class Almacen(models.Model):
+    laboratorio = models.CharField(max_length=255)
+    almacen = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.almacen
+
+
+class Empresa(models.Model):
     nombre = models.CharField(max_length=255)
-    direccion = models.TextField()
-    creado_en = models.DateTimeField(auto_now_add=True)
+    ubicacion = models.CharField(max_length=255)
+    contacto = models.CharField(max_length=255)
 
     def __str__(self):
         return self.nombre
-    
-class Producto(models.Model):
-    tipo = models.ForeignKey(TipoDeProducto, on_delete=models.CASCADE, related_name='productos')
-    detalles = models.TextField(blank=True)  # Detalles específicos del producto
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='producto_almacenes')
-    creado_en = models.DateTimeField(auto_now_add=True)
+
+
+class Estado(models.Model):
+    estado = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.tipo.nombre} - {self.id}"  # Identificar productos individuale
+        return self.estado
 
-class Accion(models.Model):
-    tipo = models.ForeignKey(TipoDeAccion, on_delete=models.CASCADE, related_name='acciones')
-    producto_almacen = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='acciones')
-    realizado_en = models.DateTimeField(auto_now_add=True)
+
+class Tipo(models.Model):
+    tipo = models.CharField(max_length=255)
 
     def __str__(self):
-        return (f"{self.tipo.nombre}: sobre "
-                f"{self.producto_almacen.tipo.nombre} en {self.producto_almacen.almacen.nombre}")
+        return self.tipo
+
+
+class Inventario(models.Model):
+    equipo = models.CharField(max_length=255)
+    numero_serie = models.CharField(max_length=255)
+    tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
+    marca = models.CharField(max_length=255)
+    peso = models.CharField(max_length=255)
+    numero_bultos = models.IntegerField()
+    coste_adecuacion = models.DecimalField(max_digits=10, decimal_places=2)
+    valor_estimado = models.DecimalField(max_digits=10, decimal_places=2)
+    reservado_a = models.CharField(max_length=255, blank=True, null=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    imagen_inicial = models.CharField(max_length=255, blank=True, null=True)
+    imagen_final = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.equipo
+
+
+class ListadoActuacion(models.Model):
+    producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    actuacion = models.ForeignKey(Actuacion, on_delete=models.CASCADE)
+    fecha = models.DateField()
+
+    def __str__(self):
+        return f"{self.producto.equipo} - {self.actuacion.actuacion} ({self.fecha})"
