@@ -68,9 +68,74 @@ class AlmacenViewSet(BaseModelViewSet):
         # Set the empresa of the Almacen to the user's empresa
         serializer.save(empresa=empresa)
 
+class InventarioViewSet(BaseModelViewSet):
+    queryset = Inventario.objects.all()
+    serializer_class = InventarioSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Inventario.objects.filter(almacen__empresa__empleados=user)
+    def perform_create(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        producto: Inventario = serializer.validated_data
+        if producto.get("almacen").empresa != empresa or producto.get("tipo").empresa != empresa or producto.get("estado").empresa != empresa:
+            raise PermissionDenied()
+        return super().perform_create(serializer)
+    def perform_update(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        producto: Inventario = serializer.instance
+        if producto.get("almacen").empresa != empresa or producto.get("tipo").empresa != empresa or producto.get("estado").empresa != empresa:
+            raise PermissionDenied()
+        return super().perform_update(serializer)    
+
+class ListadoActuacionViewSet(BaseModelViewSet):
+    queryset = ListadoActuacion.objects.all()
+    serializer_class = ListadoActuacionSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return ListadoActuacion.objects.filter(producto__almacen__empresa__empleados=user)
+    def perform_create(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        actuacion: ListadoActuacion = serializer.instance
+        if actuacion.producto.almacen.empresa != empresa:
+            raise PermissionDenied()
+        return super().perform_create(serializer)
+    def perform_update(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        actuacion: ListadoActuacion = serializer.instance
+        if actuacion.producto.almacen.empresa != empresa:
+            raise PermissionDenied()
+        return super().perform_update(serializer)    
 
 
-class EmpresaViewSet(BaseModelViewSet):
+class ListadoDocumentosViewSet(BaseModelViewSet):
+    queryset = ListadoDocumentos.objects.all()
+    serializer_class = ListadoDocumentosSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return ListadoDocumentos.objects.filter(producto__almacen__empresa__empleados=user)
+    def perform_create(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        documento: ListadoDocumentos = serializer.instance
+        if documento.producto.almacen.empresa != empresa:
+            raise PermissionDenied("Dont have permission to perform this operation")
+        return super().perform_create(serializer)
+    def perform_update(self, serializer):
+        user = self.request.user
+        empresa: Empresa = user.empresas.first()
+        documento: ListadoDocumentos = serializer.instance
+        if documento.producto.almacen.empresa != empresa:
+            raise PermissionDenied("Dont have permission to perform this operation")
+        return super().perform_update(serializer)    
+    
+class EmpresaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
 
@@ -81,15 +146,3 @@ class EstadoViewSet(viewsets.ReadOnlyModelViewSet):
 class TipoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tipo.objects.all()
     serializer_class = TipoSerializer
-
-class InventarioViewSet(BaseModelViewSet):
-    queryset = Inventario.objects.all()
-    serializer_class = InventarioSerializer
-
-class ListadoActuacionViewSet(BaseModelViewSet):
-    queryset = ListadoActuacion.objects.all()
-    serializer_class = ListadoActuacionSerializer
-
-class ListadoDocumentosViewSet(BaseModelViewSet):
-    queryset = ListadoDocumentos.objects.all()
-    serializer_class = ListadoDocumentosSerializer
