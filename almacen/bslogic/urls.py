@@ -7,7 +7,8 @@ from .views import (
     EstadoViewSet,
     TipoViewSet,
     InventarioViewSet,
-    ListadoActuacionViewSet
+    ListadoActuacionViewSet,
+    ListadoDocumentosViewSet
 )
 
 router = DefaultRouter()
@@ -18,6 +19,7 @@ router.register(r'estados', EstadoViewSet)
 router.register(r'tipos', TipoViewSet)
 router.register(r'inventarios', InventarioViewSet)
 router.register(r'listadosactuacion', ListadoActuacionViewSet)
+router.register(r'listadosdocumentos', ListadoDocumentosViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

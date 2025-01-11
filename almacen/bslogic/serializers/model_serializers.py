@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion
+from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
 
 class ActuacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,4 +35,9 @@ class InventarioSerializer(serializers.ModelSerializer):
 class ListadoActuacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListadoActuacion
+        fields = '__all__'
+
+class ListadoDocumentosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListadoDocumentos
         fields = '__all__'

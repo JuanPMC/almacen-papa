@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion
-from bslogic.serializers.model_serializers import ActuacionSerializer, AlmacenSerializer, EmpresaSerializer, EstadoSerializer, TipoSerializer, InventarioSerializer, ListadoActuacionSerializer
+from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
+from bslogic.serializers.model_serializers import ActuacionSerializer, AlmacenSerializer, EmpresaSerializer, EstadoSerializer, TipoSerializer, InventarioSerializer, ListadoActuacionSerializer, ListadoDocumentosSerializer
 
 class ActuacionViewSet(viewsets.ModelViewSet):
     queryset = Actuacion.objects.all()
@@ -29,3 +29,7 @@ class InventarioViewSet(viewsets.ModelViewSet):
 class ListadoActuacionViewSet(viewsets.ModelViewSet):
     queryset = ListadoActuacion.objects.all()
     serializer_class = ListadoActuacionSerializer
+
+class ListadoDocumentosViewSet(viewsets.ModelViewSet):
+    queryset = ListadoDocumentos.objects.all()
+    serializer_class = ListadoDocumentosSerializer
