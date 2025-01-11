@@ -40,6 +40,7 @@ class Tipo(models.Model):
 
 class Inventario(models.Model):
     equipo = models.CharField(max_length=255)
+    etiqueta = models.CharField(max_length=255)
     numero_serie = models.CharField(max_length=255)
     tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
@@ -64,3 +65,13 @@ class ListadoActuacion(models.Model):
 
     def __str__(self):
         return f"{self.producto.equipo} - {self.actuacion.actuacion} ({self.fecha})"
+
+
+class ListadoDocumentos(models.Model):
+    producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=255)
+    documento = models.CharField(max_length=255)
+    fecha = models.DateField()
+
+    def __str__(self):
+        return f"{self.producto.equipo} - {self.titulo} : {self.documento} ({self.fecha})"

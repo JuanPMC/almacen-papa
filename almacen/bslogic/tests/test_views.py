@@ -84,6 +84,7 @@ class ApiTestCase(APITestCase):
         # Test the POST request to create an Inventario
         data = {
             'equipo': 'Equipo 2',
+            'etiqueta':'123456',
             'numero_serie': '67890',
             'tipo': self.tipo.id,
             'estado': self.estado.id,
