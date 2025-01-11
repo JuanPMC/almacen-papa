@@ -2,7 +2,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from decimal import Decimal
-from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion
+from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
 
 class ApiTestCase(APITestCase):
 
@@ -38,6 +38,14 @@ class ApiTestCase(APITestCase):
             producto=self.inventario,
             actuacion=self.actuacion,
             fecha='2024-12-25'
+        )
+
+        # Creando documento
+        self.listado_documentos = ListadoDocumentos.objects.create(
+            producto = self.inventario,
+            titulo = "Test doc",
+            documento = "test_doc.txt",
+            fecha = '2025-01-01'
         )
 
     def test_get_actuaciones(self):
@@ -130,3 +138,9 @@ class ApiTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)  # Should return the one ListadoActuacion created in setUp
         self.assertEqual(response.data[0]['producto'], 1)
         self.assertEqual(response.data[0]['actuacion'], 1)
+
+    def test_get_listadodocumento(self):
+        response = self.client.get('/api/listadosdocumentos/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)  # Should return the one ListadoActuacion created in setUp
+
