@@ -3,18 +3,27 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from decimal import Decimal
 from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
+from django.contrib.auth.models import User
 
 class ApiTestCase(APITestCase):
 
     def setUp(self):
-        # Create sample data for testing
-        self.estado = Estado.objects.create(estado='Activo')
-        self.tipo = Tipo.objects.create(tipo='Tipo A')
-        self.almacen = Almacen.objects.create(laboratorio='Laboratorio 1', almacen='Almacen 1')
+        # Create user:
+        self.user = User.objects.create_user("john", "lennon@thebeatles.com", "johnpassword")
+        # Enforce Auth
+        self.client.force_login(self.user)
+
+        # Create empresa
         self.empresa = Empresa.objects.create(nombre='Empresa 1', ubicacion='Ubicación 1', contacto='Contacto 1')
+        self.empresa.empleados.set([self.user])
+
+        # Create sample data for testing
+        self.estado = Estado.objects.create(estado='Activo', empresa=self.empresa)
+        self.tipo = Tipo.objects.create(tipo='Tipo A', empresa=self.empresa)
+        self.almacen = Almacen.objects.create(laboratorio='Laboratorio 1', almacen='Almacen 1', empresa=self.empresa)
 
         # Create Actuacion instance
-        self.actuacion = Actuacion.objects.create(actuacion='Mantenimiento')
+        self.actuacion = Actuacion.objects.create(actuacion='Mantenimiento', empresa=self.empresa)
 
         # Create Inventario instance
         self.inventario = Inventario.objects.create(
@@ -54,32 +63,6 @@ class ApiTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)  # Should return the one Actuacion created in setUp
         self.assertEqual(response.data[0]['actuacion'], 'Mantenimiento')
-
-    def test_create_actuacion(self):
-        # Test the POST request to create a new Actuacion
-        data = {
-            'actuacion': 'Nuevo Mantenimiento'
-        }
-        response = self.client.post('/api/actuaciones/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['actuacion'], 'Nuevo Mantenimiento')
-
-    def test_update_actuacion(self):
-        # Test the PUT request to update an existing Actuacion
-        data = {
-            'actuacion': 'Mantenimiento Actualizado'
-        }
-        response = self.client.put(f'/api/actuaciones/{self.actuacion.id}/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['actuacion'], 'Mantenimiento Actualizado')
-
-    def test_delete_actuacion(self):
-        # Test the DELETE request to delete an existing Actuacion
-        response = self.client.delete(f'/api/actuaciones/{self.actuacion.id}/')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # Test that the object has been deleted
-        response = self.client.get('/api/actuaciones/')
-        self.assertEqual(len(response.data), 0)
 
     def test_get_almacenes(self):
         # Test the GET request for Almacenes

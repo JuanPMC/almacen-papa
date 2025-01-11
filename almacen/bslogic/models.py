@@ -1,7 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+
+class Empresa(models.Model):
+    nombre = models.CharField(max_length=255)
+    ubicacion = models.CharField(max_length=255)
+    contacto = models.CharField(max_length=255)
+    empleados = models.ManyToManyField(User, related_name="empresas")
+
+    def __str__(self):
+        return self.nombre
 
 class Actuacion(models.Model):
     actuacion = models.CharField(max_length=255)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.actuacion
@@ -10,21 +22,14 @@ class Actuacion(models.Model):
 class Almacen(models.Model):
     laboratorio = models.CharField(max_length=255)
     almacen = models.CharField(max_length=255)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.almacen
 
 
-class Empresa(models.Model):
-    nombre = models.CharField(max_length=255)
-    ubicacion = models.CharField(max_length=255)
-    contacto = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.nombre
-
-
 class Estado(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     estado = models.CharField(max_length=255)
 
     def __str__(self):
@@ -32,6 +37,7 @@ class Estado(models.Model):
 
 
 class Tipo(models.Model):
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=255)
 
     def __str__(self):
