@@ -86,7 +86,7 @@ class InventarioViewSet(BaseModelViewSet):
         user = self.request.user
         empresa: Empresa = user.empresas.first()
         producto: Inventario = serializer.instance
-        if producto.get("almacen").empresa != empresa or producto.get("tipo").empresa != empresa or producto.get("estado").empresa != empresa:
+        if producto.almacen.empresa != empresa or producto.tipo.empresa != empresa or producto.estado.empresa != empresa:
             raise PermissionDenied()
         return super().perform_update(serializer)    
 
