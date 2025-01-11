@@ -26,29 +26,48 @@ class AlmacenViewSet(BaseModelViewSet):
         """
         user = self.request.user.id
         # Retrieve all Inventario related to the user's empresa
-        return Inventario.objects.filter(almacen__empresa__empleados=user)
+        return Almacen.objects.filter(empresa__empleados=user)
 
     def perform_update(self, serializer):
         """
         Override perform_update to enforce the permission before update
         """
         user = self.request.user
-        almacen = serializer.instance.almacen
+        almacen = serializer.instance
         if is_employee(user,almacen.empresa):
             return super().perform_update(serializer)
         else:
-            raise PermissionDenied("You are not authorized to update this Inventario.")
+            raise PermissionDenied("You are not authorized to update this.")
 
     def perform_destroy(self, instance):
         """
         Override perform_destroy to enforce the permission before deletion
         """
         user = self.request.user
-        almacen = instance.almacen
+        almacen = instance
         if is_employee(user,almacen.empresa):
             return super().perform_destroy(instance)
         else:
-            raise PermissionDenied("You are not authorized to delete this Inventario.")
+            raise PermissionDenied("You are not authorized to delete this.")
+        
+    def perform_create(self, serializer):
+        """
+        Custom create method to ensure that the user belongs to the company
+        that owns the Almacen.
+        """
+        # Get the authenticated user
+        user = self.request.user
+        
+        # Get the empresa (company) that the user belongs to
+        empresa = user.empresas.first()  # Assuming the user is linked to only one empresa
+        
+        # Ensure the empresa exists
+        if not empresa:
+            raise PermissionDenied("User is not associated with any Empresa.")
+        
+        # Set the empresa of the Almacen to the user's empresa
+        serializer.save(empresa=empresa)
+
 
 
 class EmpresaViewSet(BaseModelViewSet):

@@ -10,6 +10,7 @@ class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Almacen
         fields = '__all__'
+    empresa = serializers.PrimaryKeyRelatedField(queryset=Empresa.objects.all(), required=False)
 
 
 class EmpresaSerializer(serializers.ModelSerializer):
