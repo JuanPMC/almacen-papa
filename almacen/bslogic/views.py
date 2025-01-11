@@ -100,8 +100,8 @@ class ListadoActuacionViewSet(BaseModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         empresa: Empresa = user.empresas.first()
-        actuacion: ListadoActuacion = serializer.instance
-        if actuacion.producto.almacen.empresa != empresa:
+        actuacion: ListadoActuacion = serializer.validated_data
+        if actuacion.get("producto").almacen.empresa != empresa:
             raise PermissionDenied()
         return super().perform_create(serializer)
     def perform_update(self, serializer):
@@ -123,8 +123,8 @@ class ListadoDocumentosViewSet(BaseModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         empresa: Empresa = user.empresas.first()
-        documento: ListadoDocumentos = serializer.instance
-        if documento.producto.almacen.empresa != empresa:
+        documento: ListadoDocumentos = serializer.validated_data
+        if documento.get("producto").almacen.empresa != empresa:
             raise PermissionDenied("Dont have permission to perform this operation")
         return super().perform_create(serializer)
     def perform_update(self, serializer):
