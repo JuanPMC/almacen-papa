@@ -33,6 +33,16 @@ class InventarioSerializer(serializers.ModelSerializer):
         model = Inventario
         fields = '__all__'
 
+    def to_representation(self, instance):
+        """Override to return full object in GET responses."""
+        representation = super().to_representation(instance)
+
+        representation["estado"] = EstadoSerializer(instance.estado).data 
+        representation["almacen"] = AlmacenSerializer(instance.almacen).data 
+        representation["tipo"] = TipoSerializer(instance.tipo).data 
+
+        return representation
+
 class ListadoActuacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListadoActuacion

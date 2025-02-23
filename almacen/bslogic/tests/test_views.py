@@ -127,3 +127,10 @@ class ApiTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)  # Should return the one ListadoActuacion created in setUp
 
+    def test_get_inventario(self):
+        # Test the GET request for Actuaciones
+        response = self.client.get('/api/inventarios/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["estado"]["estado"], 'Activo', response.data)
+
+
