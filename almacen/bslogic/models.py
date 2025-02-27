@@ -78,6 +78,7 @@ class ListadoDocumentos(models.Model):
     titulo = models.CharField(max_length=255)
     documento = models.CharField(max_length=255)
     fecha = models.DateField()
+    datos_del_documento = models.FileField(upload_to='uploads/')
 
     def __str__(self):
         return f"{self.producto.equipo} - {self.titulo} : {self.documento} ({self.fecha})"

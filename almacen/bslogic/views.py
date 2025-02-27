@@ -5,7 +5,12 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from bslogic.operations import is_employee
 from rest_framework.exceptions import PermissionDenied
-
+from django.http import FileResponse
+from rest_framework.response import Response
+import os
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -133,7 +138,22 @@ class ListadoDocumentosViewSet(BaseModelViewSet):
         documento: ListadoDocumentos = serializer.instance
         if documento.producto.almacen.empresa != empresa:
             raise PermissionDenied("Dont have permission to perform this operation")
-        return super().perform_update(serializer)    
+        return super().perform_update(serializer)   
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def download(self, request, pk=None):
+        """Serve the file securely."""
+        documento = get_object_or_404(ListadoDocumentos, pk=pk)
+
+        # Ensure the user has access
+        user = self.request.user
+        if documento.producto.almacen.empresa not in user.empresas.all():
+            return Response({'error': 'Unauthorized'}, status=403)
+
+        file_path = documento.file.path  # Ensure your model has a FileField named 'file'
+        if not os.path.exists(file_path):
+            return Response({'error': 'File not found'}, status=404)
+
+        return FileResponse(open(file_path, 'rb'))
     
 class EmpresaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Empresa.objects.all()
