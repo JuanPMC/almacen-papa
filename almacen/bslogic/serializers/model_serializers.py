@@ -53,3 +53,4 @@ class ListadoDocumentosSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListadoDocumentos
         fields = '__all__'
+    producto=serializers.PrimaryKeyRelatedField(queryset=Inventario.objects.all(), required=False)
