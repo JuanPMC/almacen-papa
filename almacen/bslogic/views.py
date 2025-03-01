@@ -16,9 +16,52 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-class ActuacionViewSet(viewsets.ReadOnlyModelViewSet):
+class ActuacionViewSet(viewsets.BaseModelViewSet):
     queryset = Actuacion.objects.all()
     serializer_class = ActuacionSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Actuacion.objects.filter(empresa__empleados=user)
+    def perform_update(self, serializer):
+        """
+        Override perform_update to enforce the permission before update
+        """
+        user = self.request.user
+        actuacion = serializer.instance
+        if is_employee(user,actuacion.empresa):
+            return super().perform_update(serializer)
+        else:
+            raise PermissionDenied("You are not authorized to update this.")
+    def perform_destroy(self, instance):
+        """
+        Override perform_destroy to enforce the permission before deletion
+        """
+        user = self.request.user
+        actuacion = instance
+        if is_employee(user,actuacion.empresa):
+            return super().perform_destroy(instance)
+        else:
+            raise PermissionDenied("You are not authorized to delete this.")
+        
+    def perform_create(self, serializer):
+        """
+        Custom create method to ensure that the user belongs to the company
+        that owns the actuacion.
+        """
+        # Get the authenticated user
+        user = self.request.user
+        
+        # Get the empresa (company) that the user belongs to
+        empresa = user.empresas.first()  # Assuming the user is linked to only one empresa
+        
+        # Ensure the empresa exists
+        if not empresa:
+            raise PermissionDenied("User is not associated with any Empresa.")
+        
+        # Set the empresa of the actuacion to the user's empresa
+        serializer.save(empresa=empresa)
+
     
 
 class AlmacenViewSet(BaseModelViewSet):
