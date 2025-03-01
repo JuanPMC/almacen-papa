@@ -5,6 +5,7 @@ class ActuacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actuacion
         fields = '__all__'
+    empresa = serializers.PrimaryKeyRelatedField(queryset=Empresa.objects.all(), required=False)
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
