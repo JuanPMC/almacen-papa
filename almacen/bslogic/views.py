@@ -16,7 +16,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-class ActuacionViewSet(viewsets.BaseModelViewSet):
+class ActuacionViewSet(BaseModelViewSet):
     queryset = Actuacion.objects.all()
     serializer_class = ActuacionSerializer
 
