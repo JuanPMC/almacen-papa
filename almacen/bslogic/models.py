@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 class Empresa(models.Model):
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255, unique=True)
     ubicacion = models.CharField(max_length=255)
     contacto = models.CharField(max_length=255)
     empleados = models.ManyToManyField(User, related_name="empresas")
@@ -13,7 +13,7 @@ class Empresa(models.Model):
 
 
 class Actuacion(models.Model):
-    actuacion = models.CharField(max_length=255)
+    actuacion = models.CharField(max_length=255, unique=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -28,10 +28,13 @@ class Almacen(models.Model):
     def __str__(self):
         return self.almacen
 
+    class Meta:
+        unique_together = ('almacen', 'laboratorio')
+
 
 class Estado(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=255)
+    estado = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.estado
@@ -39,7 +42,7 @@ class Estado(models.Model):
 
 class Tipo(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=255)
+    tipo = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.tipo
@@ -47,7 +50,7 @@ class Tipo(models.Model):
 
 class Inventario(models.Model):
     equipo = models.CharField(max_length=255)
-    etiqueta = models.CharField(max_length=255)
+    etiqueta = models.CharField(max_length=255, unique=True)
     numero_serie = models.CharField(max_length=255)
     tipo = models.ForeignKey(Tipo, on_delete=models.CASCADE)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
