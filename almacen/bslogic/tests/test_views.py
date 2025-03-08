@@ -5,25 +5,33 @@ from decimal import Decimal
 from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
 from django.contrib.auth.models import User
 
+
 class ApiTestCase(APITestCase):
 
     def setUp(self):
         # Create user:
-        self.user = User.objects.create_user("john", "lennon@thebeatles.com", "johnpassword")
+        self.user = User.objects.create_user(
+            "john", "lennon@thebeatles.com", "johnpassword")
         # Enforce Auth
         self.client.force_login(self.user)
 
         # Create empresa
-        self.empresa = Empresa.objects.create(nombre='Empresa 1', ubicacion='Ubicación 1', contacto='Contacto 1')
+        self.empresa = Empresa.objects.create(
+            nombre='Empresa 1', ubicacion='Ubicación 1', contacto='Contacto 1')
         self.empresa.empleados.set([self.user])
 
         # Create sample data for testing
-        self.estado = Estado.objects.create(estado='Activo', empresa=self.empresa)
+        self.estado = Estado.objects.create(
+            estado='Activo', empresa=self.empresa)
         self.tipo = Tipo.objects.create(tipo='Tipo A', empresa=self.empresa)
-        self.almacen = Almacen.objects.create(laboratorio='Laboratorio 1', almacen='Almacen 1', empresa=self.empresa)
+        self.almacen = Almacen.objects.create(
+            laboratorio='Laboratorio 1', almacen='Almacen 1', empresa=self.empresa)
+        self.almacen2 = Almacen.objects.create(
+            laboratorio='Laboratorio 2', almacen='Almacen 2', empresa=self.empresa)
 
         # Create Actuacion instance
-        self.actuacion = Actuacion.objects.create(actuacion='Mantenimiento', empresa=self.empresa)
+        self.actuacion = Actuacion.objects.create(
+            actuacion='Mantenimiento', empresa=self.empresa)
 
         # Create Inventario instance
         self.inventario = Inventario.objects.create(
@@ -51,31 +59,33 @@ class ApiTestCase(APITestCase):
 
         # Creando documento
         self.listado_documentos = ListadoDocumentos.objects.create(
-            producto = self.inventario,
-            titulo = "Test doc",
-            documento = "test_doc.txt",
-            fecha = '2025-01-01'
+            producto=self.inventario,
+            titulo="Test doc",
+            documento="test_doc.txt",
+            fecha='2025-01-01'
         )
 
     def test_get_actuaciones(self):
         # Test the GET request for Actuaciones
         response = self.client.get('/api/actuaciones/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one Actuacion created in setUp
+        # Should return the one Actuacion created in setUp
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['actuacion'], 'Mantenimiento')
 
     def test_get_almacenes(self):
         # Test the GET request for Almacenes
         response = self.client.get('/api/almacenes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one Almacen created in setUp
+        # Should return the one Almacen created in setUp
+        self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[0]['almacen'], 'Almacen 1')
 
     def test_create_inventario(self):
         # Test the POST request to create an Inventario
         data = {
             'equipo': 'Equipo 2',
-            'etiqueta':'123456',
+            'etiqueta': '123456',
             'numero_serie': '67890',
             'tipo': self.tipo.id,
             'estado': self.estado.id,
@@ -97,40 +107,61 @@ class ApiTestCase(APITestCase):
         # Test the GET request for Empresa
         response = self.client.get('/api/empresas/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one Empresa created in setUp
+        # Should return the one Empresa created in setUp
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['nombre'], 'Empresa 1')
 
     def test_get_tipo(self):
         # Test the GET request for Tipo
         response = self.client.get('/api/tipos/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one Tipo created in setUp
+        # Should return the one Tipo created in setUp
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['tipo'], 'Tipo A')
 
     def test_get_estado(self):
         # Test the GET request for Estado
         response = self.client.get('/api/estados/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one Estado created in setUp
+        # Should return the one Estado created in setUp
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['estado'], 'Activo')
 
     def test_get_listadoactuacion(self):
         # Test the GET request for ListadoActuacion
         response = self.client.get('/api/listadosactuacion/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one ListadoActuacion created in setUp
+        # Should return the one ListadoActuacion created in setUp
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['producto'], 1)
         self.assertEqual(response.data[0]['actuacion'], 1)
 
     def test_get_listadodocumento(self):
         response = self.client.get('/api/listadosdocumentos/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Should return the one ListadoActuacion created in setUp
+        # Should return the one ListadoActuacion created in setUp
+        self.assertEqual(len(response.data), 1)
 
     def test_get_inventario(self):
         # Test the GET request for Actuaciones
         response = self.client.get('/api/inventarios/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]["estado"]["estado"], 'Activo', response.data)
+        self.assertEqual(response.data[0]["estado"]
+                         ["estado"], 'Activo', response.data)
 
+    def test_mover_inventario(self):
+        # Check a valid movement
+        response = self.client.get(
+            f'/api/mover-inventario?id_elemento={self.inventario.id}&id_destino={self.almacen2.id}')
+        self.assertEqual(response.json(), {"status": "Ok"}, response.json())
+        # Check results in the database
+        self.inventario.refresh_from_db()
+        self.assertEqual(self.inventario.almacen, self.almacen2)
 
+        # Check an invalid movement
+        try:
+            response = self.client.get(
+                '/api/mover-inventario?id_elemento=1&id_destino=5')
+            self.assert_(False, "should raise an exception")
+        except Exception:
+            pass

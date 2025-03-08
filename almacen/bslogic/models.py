@@ -11,6 +11,7 @@ class Empresa(models.Model):
     def __str__(self):
         return self.nombre
 
+
 class Actuacion(models.Model):
     actuacion = models.CharField(max_length=255)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
@@ -67,6 +68,7 @@ class Inventario(models.Model):
 class ListadoActuacion(models.Model):
     producto = models.ForeignKey(Inventario, on_delete=models.CASCADE)
     actuacion = models.ForeignKey(Actuacion, on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=255, default="-")
     fecha = models.DateField()
 
     def __str__(self):
