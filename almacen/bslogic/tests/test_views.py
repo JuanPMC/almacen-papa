@@ -4,6 +4,7 @@ from rest_framework import status
 from decimal import Decimal
 from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
 from django.contrib.auth.models import User
+from rest_framework.exceptions import PermissionDenied
 
 
 class ApiTestCase(APITestCase):
@@ -15,10 +16,14 @@ class ApiTestCase(APITestCase):
         # Enforce Auth
         self.client.force_login(self.user)
 
-        # Create empresa
+        # Create empresas
         self.empresa = Empresa.objects.create(
             nombre='Empresa 1', ubicacion='Ubicación 1', contacto='Contacto 1')
         self.empresa.empleados.set([self.user])
+
+        # This empresa will be used to test security
+        self.otra_empresa = Empresa.objects.create(
+            nombre='Empresa 2', ubicacion='Ubicación 2', contacto='Contacto 2')
 
         # Create sample data for testing
         self.estado = Estado.objects.create(
@@ -28,6 +33,8 @@ class ApiTestCase(APITestCase):
             laboratorio='Laboratorio 1', almacen='Almacen 1', empresa=self.empresa)
         self.almacen2 = Almacen.objects.create(
             laboratorio='Laboratorio 2', almacen='Almacen 2', empresa=self.empresa)
+        self.almacen_de_otra_empresa = Almacen.objects.create(
+            laboratorio='Laboratorio 3', almacen='Almacen 3', empresa=self.otra_empresa)
 
         # Create Actuacion instance
         self.actuacion = Actuacion.objects.create(
@@ -106,10 +113,8 @@ class ApiTestCase(APITestCase):
     def test_get_empresa(self):
         # Test the GET request for Empresa
         response = self.client.get('/api/empresas/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Should return the one Empresa created in setUp
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['nombre'], 'Empresa 1')
+        # assert that this user should not be allowed to create empresas
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_tipo(self):
         # Test the GET request for Tipo
@@ -165,3 +170,8 @@ class ApiTestCase(APITestCase):
             self.assert_(False, "should raise an exception")
         except Exception:
             pass
+
+        # Check un-autorized
+        response = self.client.get(
+            f'/api/mover-inventario?id_elemento={self.inventario.id}&id_destino={self.almacen_de_otra_empresa.id}')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

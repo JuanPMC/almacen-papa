@@ -14,6 +14,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.permissions import IsAdminUser
 
 
 class BaseView(APIView):
@@ -222,6 +223,7 @@ class ListadoDocumentosViewSet(BaseModelViewSet):
 
 
 class EmpresaViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAdminUser]
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
 
