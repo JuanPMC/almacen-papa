@@ -215,7 +215,6 @@ class ListadoDocumentosViewSet(BaseModelViewSet):
         if documento.producto.almacen.empresa not in user.empresas.all():
             return Response({'error': 'Unauthorized'}, status=403)
 
-        # Ensure your model has a FileField named 'file'
         file_path = documento.datos_del_documento.path
         if not os.path.exists(file_path):
             return Response({'error': 'File not found'}, status=404)
