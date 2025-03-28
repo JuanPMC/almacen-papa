@@ -265,5 +265,9 @@ class MoveInventario(BaseView):
 
 class GetUserInfo(BaseView):
     def get(self, request) -> bool:
-        is_editor = request.user and request.user.caracteristicas and request.user.caracteristicas.is_editor
+        try:
+            is_editor = request.user and request.user.caracteristicas and request.user.caracteristicas.is_editor
+        except Exception:
+            print("user dosen't have caracteristicas defined")
+            is_editor = False
         return Response({"is_editor": is_editor})
