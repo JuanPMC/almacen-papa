@@ -9,7 +9,8 @@ from .views import (
     InventarioViewSet,
     ListadoActuacionViewSet,
     ListadoDocumentosViewSet,
-    MoveInventario
+    MoveInventario,
+    GetUserInfo
 )
 
 router = DefaultRouter()
@@ -25,5 +26,6 @@ router.register(r'listadosdocumentos', ListadoDocumentosViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('mover-inventario', MoveInventario.as_view(),
-         name='mover-inventario')
+         name='mover-inventario'),
+    path('is-editor', GetUserInfo.as_view(), name='is-editor')
 ]

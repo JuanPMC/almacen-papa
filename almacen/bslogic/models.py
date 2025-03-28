@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class CaracteristicasUsuario(models.Model):
+    usuario = models.OneToOneField(
+        User, related_name="caracteristicas", on_delete=models.CASCADE)
+    is_editor = models.BooleanField(default=True)
+
+
 class Empresa(models.Model):
     nombre = models.CharField(max_length=255, unique=True)
     ubicacion = models.CharField(max_length=255)

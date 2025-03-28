@@ -3,7 +3,7 @@ from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario
 from bslogic.serializers.model_serializers import ActuacionSerializer, AlmacenSerializer, EmpresaSerializer, EstadoSerializer, TipoSerializer, InventarioSerializer, ListadoActuacionSerializer, ListadoDocumentosSerializer
 from bslogic.serializers.input_serializers import MoveInventarioActionSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from bslogic.permissions import AlmacenPermission
 from bslogic.operations import is_employee, create_movement_action
 from rest_framework.exceptions import PermissionDenied
 from django.http import FileResponse
@@ -19,12 +19,12 @@ from rest_framework.permissions import IsAdminUser
 
 class BaseView(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AlmacenPermission]
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AlmacenPermission]
 
 
 class ActuacionViewSet(BaseModelViewSet):
@@ -205,7 +205,7 @@ class ListadoDocumentosViewSet(BaseModelViewSet):
                 "Dont have permission to perform this operation")
         return super().perform_update(serializer)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['get'], permission_classes=[AlmacenPermission])
     def download(self, request, pk=None):
         """Serve the file securely."""
         documento = get_object_or_404(ListadoDocumentos, pk=pk)
@@ -261,3 +261,9 @@ class MoveInventario(BaseView):
         if not create_movement_action(id_destino, id_elemento, empresa):
             return Response({"status": "Error"}, status=500)
         return Response({"status": "Ok"})
+
+
+class GetUserInfo(BaseView):
+    def get(self, request) -> bool:
+        is_editor = request.user and request.user.caracteristicas and request.user.caracteristicas.is_editor
+        return Response({"is_editor": is_editor})

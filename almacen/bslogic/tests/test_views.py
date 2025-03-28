@@ -2,7 +2,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from decimal import Decimal
-from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos
+from bslogic.models import Actuacion, Almacen, Empresa, Estado, Tipo, Inventario, ListadoActuacion, ListadoDocumentos, CaracteristicasUsuario
 from django.contrib.auth.models import User
 from rest_framework.exceptions import PermissionDenied
 
@@ -13,6 +13,9 @@ class ApiTestCase(APITestCase):
         # Create user:
         self.user = User.objects.create_user(
             "john", "lennon@thebeatles.com", "johnpassword")
+        CaracteristicasUsuario.objects.create(
+            usuario=self.user, is_editor=True)
+
         # Enforce Auth
         self.client.force_login(self.user)
 

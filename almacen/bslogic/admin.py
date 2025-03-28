@@ -8,6 +8,7 @@ from .models import (
     Inventario,
     ListadoActuacion,
     ListadoDocumentos,
+    CaracteristicasUsuario
 )
 
 # Register the models in the Django admin
@@ -19,3 +20,4 @@ admin.site.register(Tipo)
 admin.site.register(Inventario)
 admin.site.register(ListadoActuacion)
 admin.site.register(ListadoDocumentos)
+admin.site.register(CaracteristicasUsuario)
